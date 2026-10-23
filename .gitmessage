@@ -1,0 +1,34 @@
+# <type>(<scope>): <subject>
+#
+# <body>
+#
+# <footer>
+#
+# Type must be one of:
+# - feat:     New feature
+# - fix:      Bug fix
+# - docs:     Documentation only
+# - style:    Formatting, no code meaning change
+# - refactor: Neither fixes a bug nor adds a feature
+# - perf:     Performance improvement
+# - test:     Adding or correcting tests
+# - chore:    Build process, tooling, dependencies
+#
+# Scope (optional):
+# - ui:       Screens and components
+# - health:   Health Connect reading/writing and sync
+# - photo:    On-device food photo estimates (ml/, photo flow)
+# - db:       Room entities, DAOs, migrations
+# - trends:   Charts and Trends screen
+# - settings: Settings screen and DataStore
+# - bench:    tools/food-bench model benchmark
+# - build:    Gradle, dependencies, CI
+# - docs:     Documentation
+#
+# Subject: 50 chars or less, present tense, no period.
+# Body: what and why (not how). Footer: BREAKING CHANGE: …, Closes #123
+#
+# Examples:
+# feat(photo): show estimate as a range with a portion question
+# fix(health): ignore resting-burn estimates in average burned
+# chore(build): bump onnxruntime-android to 1.31.0

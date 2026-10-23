@@ -1,0 +1,43 @@
+# Build outputs and caches
+.gradle/
+.kotlin/
+build/
+**/build/
+captures/
+*.iml
+.idea/
+.vscode/
+.DS_Store
+
+# Local machine config (SDK path)
+local.properties
+
+# Claude Code: personal settings stay local; shared settings may be committed
+.claude/settings.local.json
+.claude/worktrees/
+
+# Model weights and datasets: large and not ours to redistribute (CLAUDE.md hard constraint 5)
+*.onnx
+*.gguf
+*.pt
+*.pth
+*.safetensors
+*.parquet
+tools/food-bench/bench/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Release artifacts and signing
+*.apk
+*.aab
+*.jks
+*.keystore
+keystore.properties
+
+# Test-set manifests copy labels from third-party datasets (some non-commercial / unlicensed):
+# regenerate locally with tools/food-bench/datasets.py (fixed seed) instead of committing them.
+tools/food-bench/results/*/manifests/

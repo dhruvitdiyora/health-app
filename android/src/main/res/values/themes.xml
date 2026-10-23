@@ -1,0 +1,8 @@
+<resources>
+    <!-- Only the launch window is styled here; everything after the first frame is Compose. -->
+    <style name="Theme.HealthApp" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+</resources>
