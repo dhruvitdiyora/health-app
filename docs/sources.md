@@ -207,3 +207,58 @@ Found while running the comparison in [food-model-benchmark.md](food-model-bench
 ### Tools
 - **llama.cpp b11815** (Vulkan build for Windows): https://github.com/ggml-org/llama.cpp/releases/tag/b11815. Runs the GGUF VLMs on the GTX 1050 Ti. The same engine runs on Android.
 - **ONNX Runtime / onnxconverter-common**: https://onnxruntime.ai. Used to export CalorieK to fp32 and int8. The fp16 conversion overflowed (every output was ∞).
+
+## WHOOP strap without a subscription (2026-10-24)
+
+The user asked for a NOOP-style app that reads the WHOOP strap directly, without a WHOOP subscription, as a separate app and repo. The proposal is in [strap-companion-proposal.md](strap-companion-proposal.md).
+
+- **NOOP protocol docs**:
+  - URLs:
+    - https://github.com/ryanbr/noop/blob/main/docs/PROTOCOL.md
+    - Profiles: `PROTOCOL_WHOOP4.md`, `PROTOCOL_WHOOP5.md`, `PROTOCOL_UPDATES.md`
+    - Android notes: `ANDROID.md`
+    - FAQ: `FAQ.md`
+  - Content:
+    - **Profiles:** BLE profiles for WHOOP 4.0 (firmware around 41.17.6.0, service `61080001-…`) and 5.0/MG (firmware 50.42.1.0, service `fd4b0001-…`).
+    - **Pairing:** "just works" bonding via one confirmed `GET_BATTERY_LEVEL` (command 26) write.
+    - **Connection:** the sequence is connect → bond → stream → offload.
+    - **Safety:** a safe command subset. Destructive commands (firmware, trim, ship-mode, power-cycle, DFU) are excluded, and authorization/update commands 155–159 aren't implemented.
+    - **Status:** NOOP Android reports WHOOP 4.0 offload validated, with only live heart rate on 5.0/MG.
+    - **Metric definitions (FAQ):** resting HR is the lowest sustained 5-minute level, and HRV is computed from R-R intervals.
+  - Licence: PolyForm Noncommercial 1.0.0. **Code can't be reused**; protocol facts can be implemented independently.
+  - Reliability: detailed, version-bounded community reverse-engineering. Not verified by us on hardware.
+- **my-whoop (OpenWhoop)**:
+  - URL: https://github.com/johnmiddleton12/my-whoop
+  - Content: a WHOOP 4.0 iOS app with a schema-driven decoder (`protocol/whoop_protocol.json`) and `FINDINGS.md`. Its disclaimer frames the work as interoperability reverse-engineering of the author's own device.
+  - Licence: none. It credits `bWanShiTong/openwhoop`, `jogolden/whoomp`, `reverse-engineering-whoop` and `whoop-reader`; the first three no longer resolve on GitHub (404).
+- **goose**: https://github.com/b-nnett/goose. A WHOOP 5.0 iOS proof of concept with a Rust core. No licence.
+- **whoop-reader**: https://github.com/christianmeurer/whoop-reader. A Python BLE reader for WHOOP 4.0. **MIT**, so it's reusable with attribution.
+- **OpenCircuit**: https://github.com/perezjuanj/OpenCircuit. "Local-first health data for multiple wearables… write them to Apple Health." iOS. Licence NOASSERTION. Not read in depth.
+- **Gadgetbridge**:
+  - URLs:
+    - https://codeberg.org/Freeyourgadget/Gadgetbridge
+    - Device list: https://gadgetbridge.org/gadgets/
+    - WHOOP request: https://codeberg.org/Freeyourgadget/Gadgetbridge/issues/5731 (open since 2026-01-23)
+  - Content: AGPL-3.0, Android. Supports Amazfit, Xiaomi, Garmin, Huawei, Polar, Bangle.js and others, but **not WHOOP**.
+  - Take-away: it's the reusable open option for other bands, and contributing WHOOP support there is an alternative to a new app.
+- **Legal background (not legal advice)**: EU Software Directive 2009/24/EC Art. 6 (decompilation for interoperability) and US 17 U.S.C. §1201(f), as cited by my-whoop's disclaimer. WHOOP's terms of service were not reviewed.
+- **Fitbit Air** (the user's device, added 2026-10-24):
+  - URLs:
+    - https://tomsguide.com/wellness/fitness-trackers/fitbit-air-review
+    - https://www.techlicious.com/blog/google-fitbit-air-whoop-alternative/
+    - https://expertreviews.co.uk/beauty-wellness/wearables/fitbit-air-review
+    - https://store.google.com/au/product/google_fitbit_air
+  - Content:
+    - A $99.99 screenless band.
+    - Core tracking (steps, 24/7 heart rate, sleep) needs no subscription.
+    - Google Health Premium (renamed from Fitbit Premium on 2026-05-19, $9.99/month) adds AI coaching, adaptive workouts and deeper sleep insights; a 3-month trial is included.
+    - The Google Health app replaces the Fitbit app and connects to Health Connect.
+    - No GPS; battery life is about 7 days.
+  - Reliability: tech press reviews; the claims are only partly verified (store page not read).
+  - Take-away: Strapless gets the Air's data from Health Connect and computes its own scores (proposal revised).
+- **Fitbit BLE protocol security research**:
+  - URLs:
+    - https://web3.arxiv.org/abs/1706.09165 ("Breaking Fitness Records without Moving", 2017)
+    - https://homepages.inf.ed.ac.uk/ppatras/pub/imwut18.pdf (IMWUT 2018)
+  - Content: the Fitbit sync protocol is end-to-end encrypted; the researchers needed a hardware attack to get around it. As of a 2025 forum comment, Gadgetbridge lists no Fitbit devices (unverified).
+  - Take-away: reading a Fitbit directly over Bluetooth isn't viable or appropriate; use Health Connect.

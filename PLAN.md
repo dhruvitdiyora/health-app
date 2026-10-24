@@ -90,7 +90,7 @@ One personal, local-first health app that combines:
       - The auto-picked meal at 4–5 pm is "Snack".
   - **Later:** learn a personal correction factor from the user's edits, shrink the model (mixed fp16 or calibrated int8), and add an in-app model download.
   - **Optional:** test on NutritionVerse-Real (weighed real meals, Kaggle) once the user provides a Kaggle token.
-- **Phase 3: WHOOP extras.** If needed, add the WHOOP cloud API for recovery/strain.
+- **Phase 3: WHOOP without a subscription → separate app and repo (proposal 2026-10-24).** It would read the strap over Bluetooth, compute recovery, strain and sleep on the phone, and write the results to Health Connect, where this app already reads them. See [docs/strap-companion-proposal.md](docs/strap-companion-proposal.md). This waits on the user's answers about strap model, pairing and name.
 - **Phase 4: Activities.** Custom activity builder (types, goals, streaks) fed by Health Connect exercise sessions.
 - **Phase 5: Insights + optional AI coach.** Eaten vs. burned calibration, sleep vs. recovery. Also a home-screen widget.
 
