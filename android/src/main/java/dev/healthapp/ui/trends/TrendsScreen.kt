@@ -60,6 +60,30 @@ fun TrendsScreen(contentPadding: PaddingValues) {
             }
         }
 
+        // The takeaway first: one plain sentence, so the charts below are for detail, not for working it out.
+        item {
+            val parts = buildList {
+                s.avgSleep?.let { add("slept ${HealthMath.formatMinutes((it * 60).toInt())} a night") }
+                s.avgSteps?.let { add("walked ${it.fmt0()} steps a day") }
+                HealthMath.meanOrNull(s.restingHr)?.let { add("had a resting heart rate of ${it.fmt0()} bpm") }
+                s.avgBurned?.let { add("burned about ${it.fmt0()} kcal a day") }
+            }
+            val food = when {
+                s.avgBalance != null -> " On days you logged food you averaged " +
+                    (if (s.avgBalance!! > 0) "a surplus" else "a deficit") + " of ${kotlin.math.abs(s.avgBalance!!).fmt0()} kcal."
+                s.loggedDays == 0 -> " Log food to compare what you eat with what you burn."
+                else -> ""
+            }
+            if (parts.isNotEmpty() || food.isNotBlank()) {
+                SectionCard {
+                    Text(
+                        (if (parts.isEmpty()) "" else "Over the last ${s.range.label} you " +
+                            parts.dropLast(1).joinToString(", ").let { if (it.isEmpty()) parts.last() else "$it and ${parts.last()}" } + ".") + food,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+            }
+        }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 StatTile("Avg eaten", s.avgEaten?.fmt0() ?: "–", Modifier.weight(1f), unit = "kcal",

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -127,6 +128,21 @@ fun SettingsScreen(onConnectHealth: () -> Unit, contentPadding: PaddingValues) {
                     OutlinedButton(onClick = { exporter.launch("health-export-${LocalDate.now()}.zip") }, modifier = Modifier.fillMaxWidth()) {
                         Text("Export all data")
                     }
+                }
+            }
+            item {
+                val scope = androidx.compose.runtime.rememberCoroutineScope()
+                SectionCard(title = "Appearance") {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        dev.healthapp.data.ThemeMode.entries.forEach { mode ->
+                            androidx.compose.material3.FilterChip(
+                                selected = s.settings.theme == mode,
+                                onClick = { scope.launch { app.settings.setTheme(mode) } },
+                                label = { Text(mode.label) },
+                            )
+                        }
+                    }
+                    Text("System follows your phone's dark mode.", style = LabelStyle, color = LocalViz.current.muted)
                 }
             }
             item {

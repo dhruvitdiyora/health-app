@@ -1,6 +1,7 @@
 package dev.healthapp.ui.today
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -90,6 +91,7 @@ fun TodayScreen(
     var editing by remember { mutableStateOf<FoodEntry?>(null) }
     var addingMeal by remember { mutableStateOf<Meal?>(null) }
     var weightDialog by remember { mutableStateOf(false) }
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
     var initialPhoto by remember { mutableStateOf<android.net.Uri?>(null) }
 
     // A photo shared to the app opens Log food on today with the estimate already running.
@@ -114,14 +116,19 @@ fun TodayScreen(
             PullToRefreshBox(isRefreshing = state.syncing, onRefresh = vm::refresh, modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     Modifier.fillMaxSize(),
+                    state = listState,
                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 96.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
+                    if (state.loaded && !state.settings.introDismissed) {
+                        item { IntroCard(onDismiss = vm::dismissIntro) }
+                    }
                     if (state.loaded && state.health.granted.none { it.startsWith("android.permission.health.READ") }) {
                         item { ConnectBanner(state, onConnectHealth) }
                     }
                     item { CaloriesCard(state) }
-                    item { MacrosCard(state) }
+                    // Macros only once something is logged; the empty Food card shows the targets instead.
+                    if (state.data.food.isNotEmpty()) item { MacrosCard(state) }
                     item { ActivityRow(state) }
                     item { SleepCard(state) }
                     item { BodyRow(state, onWeight = { weightDialog = true }) }
@@ -131,10 +138,12 @@ fun TodayScreen(
                 }
             }
         }
+        // Shrinks to an icon once you scroll, so it covers less of the cards underneath.
         ExtendedFloatingActionButton(
             onClick = { addingMeal = if (state.isToday) Meal.forHour(java.time.LocalTime.now().hour) else Meal.LUNCH },
-            icon = { Icon(Icons.Default.Add, contentDescription = null) },
+            icon = { Icon(Icons.Default.Add, contentDescription = "Log food") },
             text = { Text("Log food") },
+            expanded = !listState.canScrollBackward,
             modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
         )
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(bottom = 80.dp))
@@ -365,6 +374,19 @@ private fun delta(value: Double?, baseline: Double?, unit: String): String? {
 @Composable
 private fun FoodLog(state: TodayState, onEdit: (FoodEntry) -> Unit, onAdd: (Meal) -> Unit) {
     SectionCard(title = "Food") {
+        if (state.data.food.isEmpty()) {
+            // Compact empty state: one line and a row of meals, instead of four empty meal sections.
+            val s = state.settings
+            Text("Nothing logged yet. Targets: ${s.kcalTarget.toDouble().fmt0()} kcal · protein ${s.proteinTarget} g · " +
+                "carbs ${s.carbsTarget} g · fat ${s.fatTarget} g.",
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Row(Modifier.horizontalScroll(androidx.compose.foundation.rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Meal.entries.forEach { meal ->
+                    androidx.compose.material3.AssistChip(onClick = { onAdd(meal) }, label = { Text("+ ${meal.label}") })
+                }
+            }
+            return@SectionCard
+        }
         val byMeal = state.data.food.groupBy { it.meal }
         Meal.entries.forEachIndexed { i, meal ->
             if (i > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -392,12 +414,18 @@ private fun FoodLog(state: TodayState, onEdit: (FoodEntry) -> Unit, onAdd: (Meal
                 }
             }
         }
-        if (state.data.food.isEmpty()) {
-            Spacer(Modifier.height(2.dp))
-            Text(
-                "Nothing logged yet. Tap Log food, or Add under a meal.",
-                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+    }
+}
+
+/** First-run card: what the app does and what it reads, once. */
+@Composable
+private fun IntroCard(onDismiss: () -> Unit) {
+    SectionCard(title = "Welcome to Health") {
+        listOf(
+            "Log what you eat — by hand, from recent foods, or from a photo estimated on this phone.",
+            "See it next to what your wearable measured: calories burned, sleep, heart rate, weight (read from Health Connect).",
+            "Nothing leaves your phone: the app has no internet access at all.",
+        ).forEach { Text("• $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        TextButton(onClick = onDismiss) { Text("Got it") }
     }
 }

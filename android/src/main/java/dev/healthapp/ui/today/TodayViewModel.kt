@@ -130,5 +130,7 @@ class TodayViewModel(private val app: AppContainer) : ViewModel() {
         app.db.weight().insert(WeightEntry(day = d.toString(), time = timestampFor(d), kg = kg, source = "manual"))
     }
 
+    fun dismissIntro() = viewModelScope.launch { app.settings.dismissIntro() }
+
     fun deleteWeight(entry: WeightEntry) = viewModelScope.launch { app.db.weight().delete(entry) }
 }

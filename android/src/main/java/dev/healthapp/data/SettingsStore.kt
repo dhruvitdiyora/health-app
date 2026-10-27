@@ -22,7 +22,13 @@ data class Settings(
     val shareFoodToHealthConnect: Boolean = false,
     val lastSyncMillis: Long = 0,
     val lastSyncMessage: String = "",
+    val theme: ThemeMode = ThemeMode.SYSTEM,
+    /** The first-run "what this app does" card has been dismissed. */
+    val introDismissed: Boolean = false,
 )
+
+/** In-app theme choice; SYSTEM follows the phone's dark-mode setting. */
+enum class ThemeMode(val label: String) { SYSTEM("System"), LIGHT("Light"), DARK("Dark") }
 
 private val Context.dataStore by preferencesDataStore("settings")
 
@@ -36,6 +42,8 @@ class SettingsStore(private val context: Context) {
         val shareFood = booleanPreferencesKey("share_food_hc")
         val lastSync = longPreferencesKey("last_sync")
         val lastSyncMessage = stringPreferencesKey("last_sync_message")
+        val theme = stringPreferencesKey("theme")
+        val introDismissed = booleanPreferencesKey("intro_dismissed")
     }
 
     val settings: Flow<Settings> = context.dataStore.data.map { it.toSettings() }
@@ -60,6 +68,10 @@ class SettingsStore(private val context: Context) {
         it[Keys.lastSyncMessage] = message
     }
 
+    suspend fun setTheme(mode: ThemeMode) = context.dataStore.edit { it[Keys.theme] = mode.name }
+
+    suspend fun dismissIntro() = context.dataStore.edit { it[Keys.introDismissed] = true }
+
     private fun Preferences.toSettings() = Settings(
         kcalTarget = this[Keys.kcal] ?: 2200,
         proteinTarget = this[Keys.protein] ?: 140,
@@ -69,5 +81,7 @@ class SettingsStore(private val context: Context) {
         shareFoodToHealthConnect = this[Keys.shareFood] ?: false,
         lastSyncMillis = this[Keys.lastSync] ?: 0,
         lastSyncMessage = this[Keys.lastSyncMessage] ?: "",
+        theme = this[Keys.theme]?.let { v -> ThemeMode.entries.firstOrNull { it.name == v } } ?: ThemeMode.SYSTEM,
+        introDismissed = this[Keys.introDismissed] ?: false,
     )
 }

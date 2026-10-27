@@ -37,3 +37,9 @@ All tokens live in `ui/theme/Theme.kt`. Values come from the dataviz skill's val
 
 ## Check both themes
 Every UI change is checked in light and dark on the device before it's done.
+
+## Shared with Strapless
+The sibling app [Strapless](https://github.com/dhruvitdiyora/strapless) copies `ui/theme/Theme.kt`,
+`ui/components/Components.kt` and `ui/components/TimeChart.kt`. Change a colour token or shared component in both
+repos together. Both apps also offer **Settings → Appearance: System / Light / Dark**, which is how light mode is
+checked on a device without touching the phone's own dark-mode setting.
