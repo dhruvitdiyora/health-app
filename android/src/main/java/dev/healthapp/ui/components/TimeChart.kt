@@ -168,15 +168,42 @@ fun TimeChart(
                 }
             }
 
-            // Reference label on a surface-coloured pill so bars and lines never hide it.
+            // Reference label: placed where it covers no data (right/left of the plot, above/below the line);
+            // only if every spot collides does it fall back to a surface pill over the marks.
             reference?.let { r ->
                 val label = measurer.measure(r.label, tickStyle.copy(color = ink.copy(alpha = 0.75f)))
                 val padH = 4.dp.toPx()
+                val gap = 2.dp.toPx()
                 val w = label.size.width + padH * 2
                 val h = label.size.height.toFloat()
-                val ly = (y(r.value) - h / 2).coerceIn(top, top + plotH - h)
-                drawRoundRect(surface, Offset(size.width - w, ly), Size(w, h), CornerRadius(4.dp.toPx()))
-                drawText(label, topLeft = Offset(size.width - w + padH, ly))
+                val ly = y(r.value)
+                val marks = markRects(series, ::x, ::y, slot, y(maxOf(axis.min, 0.0)))
+                val candidates = listOf(
+                    Offset(size.width - w, ly - h - gap), Offset(size.width - w, ly + gap),
+                    Offset(left + gap, ly - h - gap), Offset(left + gap, ly + gap),
+                ).filter { it.y >= top && it.y + h <= top + plotH }
+                val free = candidates.firstOrNull { o ->
+                    val box = androidx.compose.ui.geometry.Rect(o, Size(w, h))
+                    marks.none { it.overlaps(box) }
+                }
+                // Second tier: an empty corner of the plot, with a short line key so it still reads as the line's label.
+                val key = 12.dp.toPx()
+                val cornerW = w + key + padH
+                val corner = if (free != null) null else listOf(
+                    Offset(size.width - cornerW, top), Offset(left + gap, top),
+                    Offset(size.width - cornerW, top + plotH - h - gap),
+                ).firstOrNull { o -> marks.none { it.overlaps(androidx.compose.ui.geometry.Rect(o, Size(cornerW, h))) } }
+                if (free != null) {
+                    drawText(label, topLeft = Offset(free.x + padH, free.y))
+                } else if (corner != null) {
+                    val cy = corner.y + h / 2
+                    drawLine(viz.muted, Offset(corner.x, cy), Offset(corner.x + key, cy), 1.dp.toPx())
+                    drawText(label, topLeft = Offset(corner.x + key + padH, corner.y))
+                } else {
+                    val py = (ly - h / 2).coerceIn(top, top + plotH - h)
+                    drawRoundRect(surface, Offset(size.width - w, py), Size(w, h), CornerRadius(4.dp.toPx()))
+                    drawText(label, topLeft = Offset(size.width - w + padH, py))
+                }
             }
         }
     }
@@ -216,6 +243,33 @@ private fun indexAt(px: Float, width: Float, left: Float, n: Int): Int? {
     if (n == 0) return null
     val slot = (width - left) / n
     return ((px - left) / slot).toInt().coerceIn(0, n - 1)
+}
+
+/** Screen rectangles occupied by data marks: bars, dots, and points sampled along lines (for label placement). */
+private fun DrawScope.markRects(
+    series: List<ChartSeries>, x: (Int) -> Float, y: (Double) -> Float, slot: Float, base: Float,
+): List<androidx.compose.ui.geometry.Rect> {
+    val out = mutableListOf<androidx.compose.ui.geometry.Rect>()
+    val r = 4.dp.toPx()
+    val barW = minOf(24.dp.toPx(), slot * 0.7f).coerceAtLeast(1f)
+    for (s in series) {
+        when (s.kind) {
+            MarkKind.BAR -> s.values.forEachIndexed { i, v ->
+                if (v != null && v > 0) out += androidx.compose.ui.geometry.Rect(x(i) - barW / 2, y(v), x(i) + barW / 2, base)
+            }
+            else -> {
+                val pts = s.values.mapIndexedNotNull { i, v -> v?.let { Offset(x(i), y(it)) } }
+                pts.forEach { out += androidx.compose.ui.geometry.Rect(it.x - r, it.y - r, it.x + r, it.y + r) }
+                if (s.kind == MarkKind.LINE) pts.zipWithNext().forEach { (a, b) ->
+                    for (k in 1..7) {
+                        val p = Offset(a.x + (b.x - a.x) * k / 8f, a.y + (b.y - a.y) * k / 8f)
+                        out += androidx.compose.ui.geometry.Rect(p.x - r, p.y - r, p.x + r, p.y + r)
+                    }
+                }
+            }
+        }
+    }
+    return out
 }
 
 /** Bar with a 4px rounded data end and a square base on the baseline. */

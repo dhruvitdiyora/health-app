@@ -27,7 +27,7 @@ All tokens live in `ui/theme/Theme.kt`. Values come from the dataviz skill's val
 - `StageBar`: stacked sleep stages with 2 dp surface gaps between segments.
 - `TimeChart`: daily series with **one y-axis** (never dual-axis — different units get separate charts), bars
   ≤ 24 dp with 4 dp rounded tops on a square base, 2 dp lines, 8 dp dots with a 2 dp surface ring, hairline
-  gridlines, a reference line whose label sits on a surface pill, and a tap/drag crosshair whose readout lists
+  gridlines, a reference-line label placed where it covers no data (beside the line, right or left, above or below; otherwise an empty corner with a short line key; only as a last resort a surface pill over the marks), and a tap/drag crosshair whose readout lists
   every series ("values lead, labels follow").
 
 ## Copy
