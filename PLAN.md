@@ -97,6 +97,20 @@ One personal, local-first health app that combines:
 - **Phase 4: Activities.** Custom activity builder (types, goals, streaks) fed by Health Connect exercise sessions.
 - **Phase 5: Insights + optional AI coach.** Eaten vs. burned calibration, sleep vs. recovery. Also a home-screen widget.
 
+## Approved 2026-11-17: finish the remaining phases (overnight run)
+The user approved finishing the remaining phases one at a time, starting 2026-11-18 03:00 local time, testing on
+the phone once it is free. Hard constraints still apply (no network, nothing auto-saved, no test data left on the
+phone, migrations for schema changes). Order:
+1. **Phase 4: Activities**: activity types, goals and streaks from Health Connect exercise sessions; resolve the
+   Fitbit/Strava double-count question (Risk above) by de-duplicating overlapping sessions.
+2. **Phase 5: Insights**: eaten vs. burned calibration (using `trackedBurn()`), sleep vs. next-day resting HR/HRV,
+   and a home-screen widget. The "AI coach" is **rule-based and on-device**; no LLM or network.
+3. **Phase 2 later items**: a personal correction factor learned from the user's edits; try a smaller model (mixed
+   fp16) and keep it only if the benchmark holds. An in-app model *download* is **not** built, because the app has no
+   network access.
+
+Not built: the Telegram bot (it needs the network; question 2 below stays open).
+
 ## Open questions for you
 1. Calorie goal: weight loss, maintenance or gain? Any protein floor? (Defaults for now: 2,200 kcal and 140 g protein, editable in Settings.)
 2. Do you want a Telegram bot for logging as well, or just the in-app chat?
