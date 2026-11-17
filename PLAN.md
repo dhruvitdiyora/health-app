@@ -1,6 +1,6 @@
 # Health App: Plan (v2, Android-first)
 
-Status: **Phase 1 is built** as a native Android app in [android/](android/) and runs on the user's Pixel 9 (Android 17) against their real Health Connect data. On 2026-10-22 the user asked for "something good for android" and approved building overnight.
+Status (2026-11-17): **Phases 1 and 2 are built** as a native Android app in [android/](android/) and run on the user's Pixel 9 (Android 17) against their real Health Connect data. Phase 3 became the separate app [Strapless](https://github.com/dhruvitdiyora/strapless) (v0 shipped). Phases 4 and 5 are not started. On 2026-10-22 the user asked for "something good for android" and approved building overnight.
 
 ## Goal
 One personal, local-first health app that combines:
@@ -56,12 +56,12 @@ One personal, local-first health app that combines:
 4. **Privacy.** All data stays on the phone. Backups and export are the user's choice.
 
 ## Phases
-- ~~Phase 0: verify Google Health API access~~ → resolved by using Health Connect (see above). Still open: choose the AI model.
+- ~~Phase 0: verify Google Health API access~~ → resolved by using Health Connect (see above). The AI model was chosen in Phase 2 (CalorieK).
 - **Phase 1: Android core (done 2026-10-22).** Food log (manual + recent foods), daily targets, weight log, Health Connect read (steps, calories burned, sleep, resting HR, HRV, weight, workouts), Today, Trends, Settings, CSV export.
   - Checked on the phone: logging and editing food, the sync, every Trends chart and its tap readout, and Settings with target suggestions.
   - Not yet run on the phone: CSV export, and sharing food to Health Connect, which needs the user's OK.
   - The debug-only sample-data writer was removed, so test data can never end up in real Health Connect.
-- **Phase 2: Food photos, on-device (model chosen 2026-10-23, build not started).** The user chose a calorie-specific model that runs on the phone, so nothing is sent anywhere and there's no API key.
+- **Phase 2: Food photos, on-device (built and verified on the phone 2026-10-23).** The user chose a calorie-specific model that runs on the phone, so nothing is sent anywhere and there's no API key.
   - **Model: CalorieK, ONNX fp32 (375 MB).** We benchmarked 4 models on 4 test sets ([docs/food-model-benchmark.md](docs/food-model-benchmark.md)).
     - It was best on every everyday-food test: 158 kcal MAE on MM-Food phone photos and 191 on HelloFresh dinners.
     - It takes 0.2 s per photo on the PC's CPU.
@@ -90,7 +90,10 @@ One personal, local-first health app that combines:
       - The auto-picked meal at 4–5 pm is "Snack".
   - **Later:** learn a personal correction factor from the user's edits, shrink the model (mixed fp16 or calibrated int8), and add an in-app model download.
   - **Optional:** test on NutritionVerse-Real (weighed real meals, Kaggle) once the user provides a Kaggle token.
-- **Phase 3: WHOOP without a subscription → separate app and repo (proposal 2026-10-24).** It would read the strap over Bluetooth, compute recovery, strain and sleep on the phone, and write the results to Health Connect, where this app already reads them. See [docs/strap-companion-proposal.md](docs/strap-companion-proposal.md). This waits on the user's answers about strap model, pairing and name.
+- **Phase 3: WHOOP without a subscription → separate app [Strapless](https://github.com/dhruvitdiyora/strapless) (v0 shipped 2026-10-24).** Proposal: [docs/strap-companion-proposal.md](docs/strap-companion-proposal.md).
+  - The user's answers: they wear a **Fitbit Air** (no WHOOP) and want one app across many devices; name "Strapless"; **self-contained first**, so it reads Health Connect and writes nothing back; public repo, AGPL-3.0.
+  - v0: reads heart rate, resting HR, HRV, sleep and steps from Health Connect and computes recovery, strain and sleep scores on the phone, with a Today screen, a 14-day trend and Settings. Verified on the phone against an independent recalculation.
+  - Next steps (Bluetooth heart-rate straps, Gadgetbridge import, a WHOOP driver, optional write-back) live in Strapless's own `docs/roadmap.md`.
 - **Phase 4: Activities.** Custom activity builder (types, goals, streaks) fed by Health Connect exercise sessions.
 - **Phase 5: Insights + optional AI coach.** Eaten vs. burned calibration, sleep vs. recovery. Also a home-screen widget.
 
