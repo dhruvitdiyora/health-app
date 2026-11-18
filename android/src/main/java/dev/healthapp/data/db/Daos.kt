@@ -121,3 +121,43 @@ interface SleepDao {
         upsert(sessions)
     }
 }
+
+@Dao
+interface ExerciseDao {
+    @Query("SELECT * FROM exercise_session WHERE day BETWEEN :from AND :to ORDER BY start")
+    fun between(from: String, to: String): Flow<List<ExerciseSession>>
+
+    @Query("SELECT MIN(day) FROM exercise_session")
+    fun firstDay(): Flow<String?>
+
+    @Query("SELECT * FROM exercise_session ORDER BY start")
+    suspend fun all(): List<ExerciseSession>
+
+    @Query("DELETE FROM exercise_session WHERE day BETWEEN :from AND :to")
+    suspend fun deleteBetween(from: String, to: String)
+
+    @Upsert
+    suspend fun upsert(sessions: List<ExerciseSession>)
+
+    /** Mirror Health Connect inside the window, so sessions deleted there disappear here too. */
+    @Transaction
+    suspend fun replaceBetween(from: String, to: String, sessions: List<ExerciseSession>) {
+        deleteBetween(from, to)
+        upsert(sessions)
+    }
+}
+
+@Dao
+interface GoalDao {
+    @Query("SELECT * FROM activity_goal ORDER BY created")
+    fun all(): Flow<List<ActivityGoal>>
+
+    @Insert
+    suspend fun insert(goal: ActivityGoal): Long
+
+    @Update
+    suspend fun update(goal: ActivityGoal)
+
+    @Delete
+    suspend fun delete(goal: ActivityGoal)
+}

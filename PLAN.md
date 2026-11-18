@@ -1,6 +1,6 @@
 # Health App: Plan (v2, Android-first)
 
-Status (2026-11-17): **Phases 1 and 2 are built** as a native Android app in [android/](android/) and run on the user's Pixel 9 (Android 17) against their real Health Connect data. Phase 3 became the separate app [Strapless](https://github.com/dhruvitdiyora/strapless) (v0 shipped). Phases 4 and 5 are not started. On 2026-10-22 the user asked for "something good for android" and approved building overnight.
+Status (2026-11-17): **Phases 1 and 2 are built** as a native Android app in [android/](android/) and run on the user's Pixel 9 (Android 17) against their real Health Connect data. Phase 3 became the separate app [Strapless](https://github.com/dhruvitdiyora/strapless) (v0 shipped). Phase 4 (Activities) was built on 2026-11-18 and awaits a phone check; Phase 5 is in progress. On 2026-10-22 the user asked for "something good for android" and approved building overnight.
 
 ## Goal
 One personal, local-first health app that combines:
@@ -50,7 +50,7 @@ One personal, local-first health app that combines:
      - The phone counts steps itself (`com.android.healthconnect.phone.*`).
    - **Total calories burned has a value on every day**, even with no device data, because Health Connect fills the gaps with a resting-burn estimate (source `android`). Trends must not read such days as tracked activity.
    - The WHOOP app isn't installed on that phone, so nothing from WHOOP has been verified yet.
-   - Open question: whether workout minutes double-count when Fitbit and Strava both record the same session.
+   - ~~Open question: whether workout minutes double-count when Fitbit and Strava both record the same session.~~ Resolved 2026-11-18: the Activities tab merges sessions that overlap by at least half of the shorter one. The daily `exerciseMinutes` total still comes from Health Connect aggregation.
 2. **WHOOP recovery/strain** may need the WHOOP cloud API later (OAuth app, membership).
 3. **Food-photo accuracy.** Estimates are rough. Mitigations: an editable result, a confidence score, and quick re-logging of recent foods.
 4. **Privacy.** All data stays on the phone. Backups and export are the user's choice.
@@ -94,7 +94,7 @@ One personal, local-first health app that combines:
   - The user's answers: they wear a **Fitbit Air** (no WHOOP) and want one app across many devices; name "Strapless"; **self-contained first**, so it reads Health Connect and writes nothing back; public repo, AGPL-3.0.
   - v0: reads heart rate, resting HR, HRV, sleep and steps from Health Connect and computes recovery, strain and sleep scores on the phone, with a Today screen, a 14-day trend and Settings. Verified on the phone against an independent recalculation.
   - Next steps (Bluetooth heart-rate straps, Gadgetbridge import, a WHOOP driver, optional write-back) live in Strapless's own `docs/roadmap.md`.
-- **Phase 4: Activities.** Custom activity builder (types, goals, streaks) fed by Health Connect exercise sessions.
+- **Phase 4: Activities (built 2026-11-18; awaiting a phone check).** Custom activity builder (types, goals, streaks) fed by Health Connect exercise sessions. Built as an Activities tab: workouts grouped into categories, the same workout from two apps merged (overlap ≥ 50% of the shorter one, keep the longest), weekly goals in sessions or minutes with streaks. Database v2 with a migration. See [docs/architecture.md](docs/architecture.md) "Activities".
 - **Phase 5: Insights + optional AI coach.** Eaten vs. burned calibration, sleep vs. recovery. Also a home-screen widget.
 
 ## Approved 2026-11-17: finish the remaining phases (overnight run)

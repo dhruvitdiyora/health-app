@@ -7,6 +7,8 @@ all of it on your phone.
   last night's sleep with stages, resting heart rate and HRV against your 7-day average, weight.
 - **Log food** — by hand, by re-logging a recent food with a portion size, or **from a photo**: an on-device model
   estimates calories and macros in about half a second and shows a range; you set the portion, name it and save.
+- **Activities** — workouts from Health Connect, with the same workout recorded by two apps shown once; weekly
+  goals (sessions or minutes, per activity type) with streaks.
 - **Trends** — 7 days to 1 year: eaten vs. burned, sleep, steps, resting HR, HRV and weight with a smoothed trend.
 - **Health Connect** — reads Fitbit, WHOOP, Strava, Hevy and the phone's own step counting; optionally shares the
   food you log back so other apps can use it.

@@ -31,7 +31,14 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     kotlin.compilerOptions { jvmTarget.set(JvmTarget.JVM_11) }
-    testOptions { unitTests.isReturnDefaultValues = true }
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+        // Robolectric migration tests read the exported Room schemas as assets.
+        unitTests.isIncludeAndroidResources = true
+    }
+    // Robolectric only sees the app's merged assets, so the schemas go into debug builds (a few KB of table
+    // definitions, no data); release builds don't carry them.
+    sourceSets.getByName("debug").assets.srcDir("$projectDir/schemas")
 }
 
 ksp {
@@ -62,5 +69,8 @@ dependencies {
     implementation(libs.onnxruntime.android)
 
     testImplementation(libs.junit)
+    testImplementation(libs.androidx.room.testing)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.robolectric)
     debugImplementation(libs.androidx.ui.tooling)
 }

@@ -13,6 +13,7 @@ object Export {
         val weight = db.weight().all()
         val daily = db.metrics().all()
         val sleep = db.sleep().all()
+        val exercise = db.exercise().all()
         ZipOutputStream(out).use { zip ->
             zip.csv("food.csv", listOf("day", "time", "meal", "name", "kcal", "protein_g", "carbs_g", "fat_g"),
                 food.map { listOf(it.day, iso(it.time), it.meal.name, it.name, it.kcal, it.protein, it.carbs, it.fat) })
@@ -22,6 +23,8 @@ object Export {
                 daily.map { listOf(it.day, it.steps, it.activeKcal, it.totalKcal, it.exerciseMinutes, it.restingHr, it.hrvMs, it.sources) })
             zip.csv("sleep.csv", listOf("wake_day", "start", "end", "asleep_min", "deep_min", "rem_min", "light_min", "awake_min", "source"),
                 sleep.map { listOf(it.day, iso(it.start), iso(it.end), it.asleepMinutes, it.deepMinutes, it.remMinutes, it.lightMinutes, it.awakeMinutes, it.source) })
+            zip.csv("workouts.csv", listOf("day", "start", "end", "type", "title", "source"),
+                exercise.map { listOf(it.day, iso(it.start), iso(it.end), it.type, it.title, it.source) })
         }
     }
 

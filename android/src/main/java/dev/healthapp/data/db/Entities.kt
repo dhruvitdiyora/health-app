@@ -75,6 +75,30 @@ data class SleepSession(
     val source: String,
 )
 
+/** A workout (Health Connect exercise session), attributed to the day it started. */
+@Entity(tableName = "exercise_session", indices = [Index("day")])
+data class ExerciseSession(
+    @PrimaryKey val hcId: String,
+    val day: String,
+    val start: Long,
+    val end: Long,
+    /** ExerciseSessionRecord.EXERCISE_TYPE_* */
+    val type: Int,
+    val title: String?,
+    val source: String,
+)
+
+/** A weekly activity goal the user set; [category] is an Activities.Category name, null = any activity. */
+@Entity(tableName = "activity_goal")
+data class ActivityGoal(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val category: String?,
+    /** Activities.Metric name: SESSIONS or MINUTES. */
+    val metric: String,
+    val weeklyTarget: Int,
+    val created: Long,
+)
+
 /** A distinct food the person has logged before, for one-tap re-logging. */
 data class RecentFood(
     val name: String,

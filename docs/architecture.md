@@ -8,15 +8,16 @@ android/                          single Gradle module (the app); no :app subpro
     HealthApp.kt, AppContainer.kt   Application + hand-rolled DI (db, settings, health, sync, food, calories)
     MainActivity.kt                 Compose host; receives "Share to Health" images
     PrivacyActivity.kt              shown by Health Connect ("why does this app need…")
-    data/db/                        Room: entities, DAOs, AppDatabase (v1, schema exported to android/schemas/)
+    data/db/                        Room: entities, DAOs, AppDatabase (v2, schema exported to android/schemas/)
     data/SettingsStore.kt           DataStore: targets, goal weight, share-food flag, last sync
     data/Export.kt                  zip of CSVs (food, weight, daily, sleep)
     data/health/                    Health Connect: permissions, reads, nutrition write, sync into Room
     domain/HealthMath.kt            pure functions (sleep stages, weight trend, balance), unit tested
+    domain/Activities.kt            workout categories, de-duplication, weekly goals and streaks (pure, tested)
     ml/CalorieEstimator.kt          CalorieK ONNX session, decode + preprocess, PhotoEstimate (with range)
-    ui/                             HealthAppUi (tabs) + today/, trends/, settings/, components/, theme/
+    ui/                             HealthAppUi (tabs) + today/, activities/, trends/, settings/, components/, theme/
   src/debug/                        BenchActivity: on-device model benchmark (debug builds only)
-  src/test/                         JVM unit tests (HealthMathTest)
+  src/test/                         JVM unit tests (HealthMathTest, ActivitiesTest) + Robolectric MigrationTest
 tools/food-bench/                   PC scripts that benchmarked food-photo models (Python)
 docs/                               plan support, research sources, benchmark, design notes
 ```
@@ -45,11 +46,27 @@ User ─► Log food sheet ─► FoodRepository ─► Room ◄── DAOs (Flo
   add/update/delete and keeps `hcRecordId`.
 
 ## State and UI
-- One ViewModel per tab (`TodayViewModel`, `TrendsViewModel`, `SettingsViewModel`), created with `viewModelFactory`
+- One ViewModel per tab (`TodayViewModel`, `ActivitiesViewModel`, `TrendsViewModel`, `SettingsViewModel`), created with `viewModelFactory`
   and `context.container`. Each exposes one `StateFlow` built by `combine` + `flatMapLatest` on the selected day/range.
 - Permission launchers live in `HealthAppUi` (read permissions) and `SettingsScreen` (nutrition write).
 - The photo flow is entirely inside `FoodSheet`: camera (`TakePicture` into `cache/photos/` via the `…files`
   FileProvider), picker (`PickVisualMedia`), or a shared image (`MainActivity` → `TodayScreen` → `FoodSheet`).
+
+## Activities (Phase 4)
+- **Sync**: `HealthSync` copies every `ExerciseSessionRecord` in the window into `exercise_session` (day = the day it
+  started), replacing the window so deletions in Health Connect propagate. Every app's copy is stored as-is.
+- **De-duplication** happens when reading (`Activities.dedupe`): two sessions are the same workout when they overlap
+  by at least 50% of the shorter one. The longest copy is kept (a watch usually starts before a phone app and stops
+  after it) and the others are listed as "also recorded by". Back-to-back sessions (a run then a cool-down walk)
+  overlap little and stay separate. This answers the Fitbit/Strava double-count risk in PLAN.md for workouts;
+  daily step and calorie totals were already de-duplicated by Health Connect's own aggregation.
+- **Goals** (`activity_goal`): per category or any activity, sessions or minutes per week. Weeks run Monday to Sunday.
+  The streak counts weeks in a row the goal was met, ending with this week if it is already met, otherwise last week:
+  the unfinished week never breaks a streak. Weeks before the first stored session are unknown, not missed.
+- **Schema**: v1 → v2 adds the two tables (`AppDatabase.MIGRATION_1_2`); `MigrationTest` builds a v1 database from
+  `schemas/…/1.json`, fills it, and opens it with the migration (Room validates the result). The schemas are added to
+  **debug** assets only, because Robolectric reads them from the merged assets; Room's `MigrationTestHelper` can't
+  open files by path on Windows.
 
 ## Things that bit us (keep)
 - Android 17 / Pixel 9 uses 16 KB pages: native libs must be 16 KB aligned (DataStore ≥ 1.3, graphics-path 1.1,

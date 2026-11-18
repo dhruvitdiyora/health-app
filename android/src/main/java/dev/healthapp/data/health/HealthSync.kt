@@ -13,6 +13,7 @@ import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import dev.healthapp.data.db.AppDatabase
 import dev.healthapp.data.db.DailyMetric
+import dev.healthapp.data.db.ExerciseSession
 import dev.healthapp.data.db.SleepSession
 import dev.healthapp.data.db.WeightEntry
 import dev.healthapp.domain.HealthMath
@@ -20,10 +21,10 @@ import java.time.LocalDate
 import java.time.Period
 import java.time.ZoneId
 
-data class SyncResult(val days: Int, val typesRead: Int, val sleepSessions: Int, val weights: Int) {
+data class SyncResult(val days: Int, val typesRead: Int, val sleepSessions: Int, val weights: Int, val workouts: Int = 0) {
     val message: String
         get() = if (typesRead == 0) "No Health Connect permissions granted"
-        else "Synced $days days: $typesRead data types, $sleepSessions sleeps, $weights weigh-ins"
+        else "Synced $days days: $typesRead data types, $sleepSessions sleeps, $weights weigh-ins, $workouts workouts"
 }
 
 /**
@@ -103,7 +104,28 @@ class HealthSync(private val hc: HealthConnectManager, private val db: AppDataba
             weightCount = weights.size
         }
 
-        return SyncResult(days, can.size, sleepCount, weightCount)
+        var workoutCount = 0
+        if (ReadType.EXERCISE in can) {
+            // Every copy is stored as Health Connect has it; Activities.dedupe merges the same workout from two apps.
+            val filter = TimeRangeFilter.between(firstDay.atStartOfDay(zone).toInstant(), today.plusDays(1).atStartOfDay(zone).toInstant())
+            val sessions = hc.readAll(ExerciseSessionRecord::class, filter).mapNotNull { r ->
+                val day = r.startTime.atZone(zone).toLocalDate()
+                if (day < firstDay || day > today) return@mapNotNull null
+                ExerciseSession(
+                    hcId = r.metadata.id,
+                    day = day.toString(),
+                    start = r.startTime.toEpochMilli(),
+                    end = r.endTime.toEpochMilli(),
+                    type = r.exerciseType,
+                    title = r.title,
+                    source = r.metadata.dataOrigin.packageName,
+                )
+            }
+            db.exercise().replaceBetween(from, to, sessions)
+            workoutCount = sessions.size
+        }
+
+        return SyncResult(days, can.size, sleepCount, weightCount, workoutCount)
     }
 
     /** One Health Connect aggregate call covering every summable metric, sliced per local day. */

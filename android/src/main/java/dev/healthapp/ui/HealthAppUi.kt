@@ -3,6 +3,7 @@ package dev.healthapp.ui
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Today
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import dev.healthapp.container
+import dev.healthapp.ui.activities.ActivitiesScreen
 import dev.healthapp.ui.settings.SettingsScreen
 import dev.healthapp.ui.today.TodayScreen
 import dev.healthapp.ui.trends.TrendsScreen
@@ -29,11 +31,12 @@ import kotlinx.coroutines.launch
 
 private enum class Tab(val label: String, val icon: ImageVector) {
     TODAY("Today", Icons.Default.Today),
+    ACTIVITIES("Activities", Icons.AutoMirrored.Filled.DirectionsRun),
     TRENDS("Trends", Icons.AutoMirrored.Filled.ShowChart),
     SETTINGS("Settings", Icons.Default.Settings),
 }
 
-/** App shell: three tabs, plus the Health Connect permission launcher that any tab can trigger. */
+/** App shell: four tabs, plus the Health Connect permission launcher that any tab can trigger. */
 @Composable
 fun HealthAppUi(sharedPhoto: android.net.Uri? = null, onSharedPhotoUsed: () -> Unit = {}) {
     val context = LocalContext.current
@@ -72,6 +75,7 @@ fun HealthAppUi(sharedPhoto: android.net.Uri? = null, onSharedPhotoUsed: () -> U
         when (tab) {
             Tab.TODAY -> TodayScreen(onConnectHealth = connect, contentPadding = padding,
                 sharedPhoto = sharedPhoto, onSharedPhotoUsed = onSharedPhotoUsed)
+            Tab.ACTIVITIES -> ActivitiesScreen(onConnectHealth = connect, contentPadding = padding)
             Tab.TRENDS -> TrendsScreen(contentPadding = padding)
             Tab.SETTINGS -> SettingsScreen(onConnectHealth = connect, contentPadding = padding)
         }

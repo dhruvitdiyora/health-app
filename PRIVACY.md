@@ -26,7 +26,7 @@ uploaded.
 
 ## Backups, export and deletion
 - Android cloud backup is **disabled** for this app (`allowBackup="false"`), so its data isn't copied to Google Drive.
-- Settings → *Export all data* writes a zip of CSV files to a place you choose.
+- Settings → *Export all data* writes a zip of CSV files (food, weight, daily, sleep, workouts) to a place you choose.
 - Uninstalling the app deletes its database, cache and model. Data in Health Connect is managed by Health Connect.
 
 ## Permissions
