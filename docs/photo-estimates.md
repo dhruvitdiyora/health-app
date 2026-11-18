@@ -34,6 +34,17 @@ Changing any step changes the numbers. After a change, re-run the phone benchmar
   ×1.5. "Bigger" options exist because the model under-estimates large meals (≈ −170 kcal on 770 kcal dinners).
 - Values are shown as whole numbers. The user must name the entry; nothing is saved automatically.
 
+## Personal correction (`domain/PhotoCorrection.kt`, built 2026-11-18)
+- Every entry saved from a photo keeps the model's **raw** estimate in `food_entry.photoEstimateKcal` (database v3).
+  The ratio saved kcal / raw estimate captures both the portion chip and any edit to the numbers.
+- The factor is the geometric median of the ratios over the **30 most recent** photo meals, with at least **5**.
+  Ratios outside ×0.25–×4 are ignored (a typo or a different food), the factor is kept within ×0.5–×2, and nothing
+  is offered when it is within ±8% of ×1.
+- It is only ever **offered**: a "Your usual ×1.20" portion chip next to the others, with a line saying how many meals
+  it comes from and the middle half of the ratios. The estimate itself, its range and the other chips are unchanged,
+  and the entry is still never saved automatically.
+- Editing an old photo entry updates its ratio, so the factor follows corrections. Tested in `PhotoCorrectionTest`.
+
 ## On-device benchmark (debug builds)
 ```bash
 # copy test images into private storage, then:
@@ -47,5 +58,7 @@ resize 16 ms. Phone vs PC MAE: 132 vs 131 kcal (MM-Food), 200 vs 197 (HelloFresh
 
 ## Ideas not done yet
 - In-app model download (would need the `INTERNET` permission back — a privacy decision for the user).
-- Smaller model: mixed-precision fp16 (keep LayerNorm/softmax fp32) or calibrated static int8.
-- Learn a personal correction factor from the user's edits.
+- Smaller model: mixed-precision fp16 (keep LayerNorm/softmax fp32) or calibrated static int8. Not tried on
+  2026-11-18: the bench folder with the PyTorch weights isn't on this PC and rebuilding it means downloading the
+  model again, which the overnight run wasn't allowed to do. Needs the user's go-ahead and a rerun of
+  `tools/food-bench/export_onnx.py` with a mixed-precision step, then the phone benchmark.

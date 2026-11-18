@@ -105,7 +105,7 @@ phone, migrations for schema changes). Order:
    Fitbit/Strava double-count question (Risk above) by de-duplicating overlapping sessions.
 2. **Phase 5: Insights**: eaten vs. burned calibration (using `trackedBurn()`), sleep vs. next-day resting HR/HRV,
    and a home-screen widget. The "AI coach" is **rule-based and on-device**; no LLM or network.
-3. **Phase 2 later items**: a personal correction factor learned from the user's edits; try a smaller model (mixed
+3. **Phase 2 later items** (*correction factor built 2026-11-18, awaiting a phone check; the smaller model was not tried because it needs the model downloaded again*): a personal correction factor learned from the user's edits; try a smaller model (mixed
    fp16) and keep it only if the benchmark holds. An in-app model *download* is **not** built, because the app has no
    network access.
 

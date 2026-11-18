@@ -12,7 +12,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         FoodEntry::class, WeightEntry::class, DailyMetric::class, SleepSession::class,
         ExerciseSession::class, ActivityGoal::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -40,7 +40,14 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        val MIGRATIONS = arrayOf(MIGRATION_1_2)
+        /** v3: photo entries keep the model's raw estimate, for the personal correction factor. */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `food_entry` ADD COLUMN `photoEstimateKcal` REAL")
+            }
+        }
+
+        val MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3)
 
         fun create(context: Context): AppDatabase =
             Room.databaseBuilder(context, AppDatabase::class.java, "health.db").addMigrations(*MIGRATIONS).build()

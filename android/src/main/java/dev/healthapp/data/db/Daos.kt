@@ -31,6 +31,10 @@ interface FoodDao {
     )
     fun recent(limit: Int = 30): Flow<List<RecentFood>>
 
+    /** Photo entries, newest first: the model's raw estimate against what was saved. */
+    @Query("SELECT photoEstimateKcal AS estimate, kcal AS saved FROM food_entry WHERE photoEstimateKcal > 0 ORDER BY time DESC LIMIT :limit")
+    fun photoPairs(limit: Int = 30): Flow<List<PhotoPair>>
+
     @Query("SELECT * FROM food_entry WHERE id = :id")
     suspend fun byId(id: Long): FoodEntry?
 

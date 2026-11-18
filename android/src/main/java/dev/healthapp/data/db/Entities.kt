@@ -33,7 +33,12 @@ data class FoodEntry(
     val fat: Double,
     /** Health Connect NutritionRecord id when the entry was shared there, so deletes can follow. */
     val hcRecordId: String? = null,
+    /** The photo model's raw estimate (before any portion change) when the entry came from a photo; learns the personal correction. */
+    val photoEstimateKcal: Double? = null,
 )
+
+/** A photo entry's raw estimate and the kcal the user saved. */
+data class PhotoPair(val estimate: Double, val saved: Double)
 
 @Entity(tableName = "weight_entry", indices = [Index("day"), Index(value = ["hcRecordId"], unique = true)])
 data class WeightEntry(

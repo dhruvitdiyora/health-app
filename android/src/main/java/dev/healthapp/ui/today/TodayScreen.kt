@@ -154,14 +154,15 @@ fun TodayScreen(
             existing = editing,
             initialMeal = editing?.meal ?: addingMeal ?: Meal.SNACK,
             recent = state.recent,
+            photoFactor = state.photoFactor,
             initialPhoto = initialPhoto,
             onDismiss = { editing = null; addingMeal = null; initialPhoto = null },
-            onSave = { name, meal, kcal, p, c, f ->
+            onSave = { name, meal, kcal, p, c, f, photoEstimate ->
                 val base = editing
                 vm.saveFood(
                     base?.copy(name = name, meal = meal, kcal = kcal, protein = p, carbs = c, fat = f)
                         ?: FoodEntry(day = state.day.toString(), time = vm.timestampFor(state.day), name = name, meal = meal,
-                            kcal = kcal, protein = p, carbs = c, fat = f)
+                            kcal = kcal, protein = p, carbs = c, fat = f, photoEstimateKcal = photoEstimate)
                 )
                 editing = null; addingMeal = null; initialPhoto = null
             },

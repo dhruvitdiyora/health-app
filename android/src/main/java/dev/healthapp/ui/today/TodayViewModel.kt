@@ -1,5 +1,6 @@
 package dev.healthapp.ui.today
 
+import dev.healthapp.domain.PhotoCorrection
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.healthapp.AppContainer
@@ -40,6 +41,8 @@ data class TodayState(
     val data: DayData = DayData(),
     val settings: Settings = Settings(),
     val recent: List<RecentFood> = emptyList(),
+    /** Learned from past photo meals; offered as a portion choice, never applied on its own. */
+    val photoFactor: PhotoCorrection.Factor? = null,
     val health: HealthStatus = HealthStatus(),
     val syncing: Boolean = false,
     val loaded: Boolean = false,
@@ -80,9 +83,13 @@ class TodayViewModel(private val app: AppContainer) : ViewModel() {
     }
 
     val state: StateFlow<TodayState> = combine(
-        day, dayData, app.settings.settings, app.db.food().recent(), combine(app.sync.status, app.sync.syncing, ::Pair),
-    ) { d, data, settings, recent, (health, syncing) ->
-        TodayState(d, data, settings, recent, health, syncing, loaded = true)
+        day, dayData, app.settings.settings,
+        combine(app.db.food().recent(), app.db.food().photoPairs()) { r, pairs ->
+            r to PhotoCorrection.learn(pairs.map { PhotoCorrection.Pair(it.estimate, it.saved) })
+        },
+        combine(app.sync.status, app.sync.syncing, ::Pair),
+    ) { d, data, settings, (recent, factor), (health, syncing) ->
+        TodayState(d, data, settings, recent, factor, health, syncing, loaded = true)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TodayState())
 
     private val _message = MutableStateFlow<String?>(null)

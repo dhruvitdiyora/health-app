@@ -14,7 +14,7 @@ rate, heart rate variability, weight, and workouts — plus, if you allow it, da
 from apps such as Fitbit, WHOOP, Strava or Hevy that you have connected to Health Connect yourself.
 
 ## What it writes
-- A local database on your phone (food you log, weights you enter, and a copy of the Health Connect data above so
+- A local database on your phone (food you log, including the photo model's raw estimate for entries made from a photo, weights you enter, and a copy of the Health Connect data above so
   charts are fast and history survives).
 - **Only if you turn on "Share food with Health Connect"**: the food you log, as nutrition records, so apps you
   allow (for example WHOOP) can see calories eaten. Turning it off stops new writes.

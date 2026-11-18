@@ -8,7 +8,7 @@ android/                          single Gradle module (the app); no :app subpro
     HealthApp.kt, AppContainer.kt   Application + hand-rolled DI (db, settings, health, sync, food, calories)
     MainActivity.kt                 Compose host; receives "Share to Health" images
     PrivacyActivity.kt              shown by Health Connect ("why does this app need…")
-    data/db/                        Room: entities, DAOs, AppDatabase (v2, schema exported to android/schemas/)
+    data/db/                        Room: entities, DAOs, AppDatabase (v3, schema exported to android/schemas/)
     data/SettingsStore.kt           DataStore: targets, goal weight, share-food flag, last sync
     data/Export.kt                  zip of CSVs (food, weight, daily, sleep)
     data/health/                    Health Connect: permissions, reads, nutrition write, sync into Room
@@ -65,7 +65,7 @@ User ─► Log food sheet ─► FoodRepository ─► Room ◄── DAOs (Flo
 - **Goals** (`activity_goal`): per category or any activity, sessions or minutes per week. Weeks run Monday to Sunday.
   The streak counts weeks in a row the goal was met, ending with this week if it is already met, otherwise last week:
   the unfinished week never breaks a streak. Weeks before the first stored session are unknown, not missed.
-- **Schema**: v1 → v2 adds the two tables (`AppDatabase.MIGRATION_1_2`); `MigrationTest` builds a v1 database from
+- **Schema**: v1 → v2 adds the two tables (`AppDatabase.MIGRATION_1_2`); v2 → v3 adds `food_entry.photoEstimateKcal` for the photo correction; `MigrationTest` builds a v1 database from
   `schemas/…/1.json`, fills it, and opens it with the migration (Room validates the result). The schemas are added to
   **debug** assets only, because Robolectric reads them from the merged assets; Room's `MigrationTestHelper` can't
   open files by path on Windows.

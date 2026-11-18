@@ -76,4 +76,39 @@ class MigrationTest {
             db.close()
         }
     }
+
+    @Test fun v2ToV3AddsThePhotoEstimateColumn() {
+        val name = "migration-2-3.db"
+        createVersion(name, 2) { db ->
+            db.execSQL("INSERT INTO food_entry (id, day, time, name, meal, kcal, protein, carbs, fat, hcRecordId) " +
+                "VALUES (1, '2026-03-01', 1000, 'TEST soup', 'LUNCH', 420.0, 20.0, 40.0, 15.0, NULL)")
+            db.execSQL("INSERT INTO activity_goal (id, category, metric, weeklyTarget, created) VALUES (1, NULL, 'MINUTES', 150, 0)")
+        }
+        val db = open(name)
+        try {
+            runBlocking {
+                val old = db.food().all().single()
+                assertEquals(null, old.photoEstimateKcal)
+                assertEquals(150, db.goals().all().first().single().weeklyTarget)
+                db.food().insert(old.copy(id = 0, name = "TEST photo", kcal = 600.0, photoEstimateKcal = 500.0))
+                assertEquals(listOf(dev.healthapp.data.db.PhotoPair(500.0, 600.0)), db.food().photoPairs().first())
+            }
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test fun v1ToV3RunsBothMigrations() {
+        val name = "migration-1-3.db"
+        createVersion(name, 1) { db ->
+            db.execSQL("INSERT INTO food_entry (id, day, time, name, meal, kcal, protein, carbs, fat, hcRecordId) " +
+                "VALUES (1, '2026-03-01', 1000, 'TEST toast', 'BREAKFAST', 200.0, 6.0, 30.0, 5.0, NULL)")
+        }
+        val db = open(name)
+        try {
+            runBlocking { assertEquals(listOf("TEST toast"), db.food().all().map { it.name }) }
+        } finally {
+            db.close()
+        }
+    }
 }

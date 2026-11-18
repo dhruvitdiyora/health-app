@@ -63,6 +63,7 @@ import dev.healthapp.data.db.FoodEntry
 import dev.healthapp.data.db.Meal
 import dev.healthapp.data.db.RecentFood
 import dev.healthapp.domain.HealthMath
+import dev.healthapp.domain.PhotoCorrection
 import dev.healthapp.ml.PhotoEstimate
 import dev.healthapp.ui.components.fmt0
 import dev.healthapp.ui.theme.LabelStyle
@@ -94,9 +95,11 @@ fun FoodSheet(
     existing: FoodEntry?,
     initialMeal: Meal,
     recent: List<RecentFood>,
+    photoFactor: PhotoCorrection.Factor? = null,
     initialPhoto: Uri? = null,
     onDismiss: () -> Unit,
-    onSave: (name: String, meal: Meal, kcal: Double, protein: Double, carbs: Double, fat: Double) -> Unit,
+    /** [photoEstimate]: the model's raw kcal when this entry came from a photo, else null. */
+    onSave: (name: String, meal: Meal, kcal: Double, protein: Double, carbs: Double, fat: Double, photoEstimate: Double?) -> Unit,
     onDelete: (() -> Unit)?,
 ) {
     val context = LocalContext.current
@@ -192,7 +195,7 @@ fun FoodSheet(
                 }
             }
 
-            photoState?.let { state -> PhotoCard(photoThumb, state, multiplier) }
+            photoState?.let { state -> PhotoCard(photoThumb, state, multiplier, photoFactor) }
 
             OutlinedTextField(
                 value = name, onValueChange = { name = it },
@@ -233,7 +236,8 @@ fun FoodSheet(
                 Text(if (fromPhoto) "How big was your portion?" else "Portion", style = LabelStyle,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    (if (fromPhoto) PHOTO_PORTIONS else RECENT_PORTIONS).forEach { (label, m) ->
+                    val usual = photoFactor?.takeIf { fromPhoto }?.let { listOf("Your usual ×${"%.2f".format(it.factor)}" to it.factor) }.orEmpty()
+                    ((if (fromPhoto) PHOTO_PORTIONS else RECENT_PORTIONS) + usual).forEach { (label, m) ->
                         FilterChip(selected = multiplier == m, onClick = { multiplier = m; apply(b, m) }, label = { Text(label) })
                     }
                 }
@@ -259,7 +263,7 @@ fun FoodSheet(
                     OutlinedButton(onClick = onDelete) { Text("Delete") }
                 }
                 Button(
-                    onClick = { onSave(name.trim(), meal, kcalValue!!, p, c, f) },
+                    onClick = { onSave(name.trim(), meal, kcalValue!!, p, c, f, (photoState as? PhotoState.Ready)?.estimate?.kcal) },
                     enabled = canSave,
                     modifier = Modifier.weight(1f),
                 ) { Text(if (fromPhoto && name.isBlank()) "Name it to save" else "Save") }
@@ -270,7 +274,7 @@ fun FoodSheet(
 
 /** Thumbnail plus the estimate as a range; the point value is secondary because the model is rough. */
 @Composable
-private fun PhotoCard(thumb: ImageBitmap?, state: PhotoState, multiplier: Double) {
+private fun PhotoCard(thumb: ImageBitmap?, state: PhotoState, multiplier: Double, factor: PhotoCorrection.Factor?) {
     val viz = LocalViz.current
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(88.dp).clip(RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
@@ -294,6 +298,11 @@ private fun PhotoCard(thumb: ImageBitmap?, state: PhotoState, multiplier: Double
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text("A rough estimate: check it, and adjust the portion. ${"%.1f".format(e.inferenceMs / 1000.0)} s on device.",
                         style = LabelStyle, color = viz.muted)
+                    factor?.let { f ->
+                        Text("Your last ${f.meals} photo meals were saved at about ×${"%.2f".format(f.factor)} the estimate " +
+                            "(usually ×${"%.2f".format(f.low)}–×${"%.2f".format(f.high)}). Pick \"Your usual\" to use it.",
+                            style = LabelStyle, color = viz.muted)
+                    }
                 }
                 is PhotoState.Failed -> Text(state.message, style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
