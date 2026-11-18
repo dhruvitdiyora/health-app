@@ -122,7 +122,7 @@ fun SettingsScreen(onConnectHealth: () -> Unit, contentPadding: PaddingValues) {
             item {
                 SectionCard(title = "Your data") {
                     Text(
-                        "Everything is stored on this phone only. Export a zip of CSV files (food, weight, daily metrics, sleep).",
+                        "Everything is stored on this phone only. Export a zip of CSV files (food, weight, daily metrics, sleep, workouts).",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     OutlinedButton(onClick = { exporter.launch("health-export-${LocalDate.now()}.zip") }, modifier = Modifier.fillMaxWidth()) {
