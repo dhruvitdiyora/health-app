@@ -81,6 +81,7 @@ Run **`./init.sh`** before claiming a change is done. It's the same gate CI runs
 | Plan, phases, open questions | [PLAN.md](PLAN.md) | Scoping any feature |
 | Code structure and data flow | [docs/architecture.md](docs/architecture.md) | Adding screens, DAOs, sync, or DI changes |
 | Visual design and charts | [docs/design.md](docs/design.md) | Any UI or chart work |
+| Insights, coach, widget | [docs/insights.md](docs/insights.md) | Touching `domain/Insights.kt`, `domain/Coach.kt`, `ui/insights/` or the widget |
 | Photo calorie estimates | [docs/photo-estimates.md](docs/photo-estimates.md) | Touching `ml/`, the photo flow, or model installation |
 | Model benchmark | [docs/food-model-benchmark.md](docs/food-model-benchmark.md), [tools/food-bench/README.md](tools/food-bench/README.md) | Evaluating or replacing the food model |
 | Research sources | [docs/sources.md](docs/sources.md) | Before citing a claim, and whenever the user shares a link |

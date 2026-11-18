@@ -9,6 +9,9 @@ all of it on your phone.
   estimates calories and macros in about half a second and shows a range; you set the portion, name it and save.
 - **Activities** — workouts from Health Connect, with the same workout recorded by two apps shown once; weekly
   goals (sessions or minutes, per activity type) with streaks.
+- **Insights** — a rule-based coach on your last week, what your logs and the scale say about your real
+  maintenance calories (as a range), and whether short nights show up in your resting HR and HRV. Plus a
+  home-screen widget for today.
 - **Trends** — 7 days to 1 year: eaten vs. burned, sleep, steps, resting HR, HRV and weight with a smoothed trend.
 - **Health Connect** — reads Fitbit, WHOOP, Strava, Hevy and the phone's own step counting; optionally shares the
   food you log back so other apps can use it.

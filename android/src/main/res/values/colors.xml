@@ -1,4 +1,11 @@
 <resources>
     <color name="window_background">#F9F9F7</color>
     <color name="ic_launcher_background">#2A78D6</color>
+    <!-- Home-screen widget: same surface, ink and series tokens as ui/theme/Theme.kt. -->
+    <color name="widget_surface">#FCFCFB</color>
+    <color name="widget_border">#1A0B0B0B</color>
+    <color name="widget_ink">#1A1A19</color>
+    <color name="widget_muted">#6B6A65</color>
+    <color name="widget_eaten">#2A78D6</color>
+    <color name="widget_track">#E1E0D9</color>
 </resources>

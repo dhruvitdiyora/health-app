@@ -262,3 +262,30 @@ The user asked for a NOOP-style app that reads the WHOOP strap directly, without
     - https://homepages.inf.ed.ac.uk/ppatras/pub/imwut18.pdf (IMWUT 2018)
   - Content: the Fitbit sync protocol is end-to-end encrypted; the researchers needed a hardware attack to get around it. As of a 2025 forum comment, Gadgetbridge lists no Fitbit devices (unverified).
   - Take-away: reading a Fitbit directly over Bluetooth isn't viable or appropriate; use Health Connect.
+
+## Phase 5 research (accessed 2026-11-18)
+Found with web search; the pages themselves could not be opened from this environment (WebFetch is blocked), so the
+content below comes from abstracts and search summaries and is marked accordingly.
+
+- **Shcherbina A. et al. (2017), "Accuracy in Wrist-Worn, Sensor-Based Measurements of Heart Rate and Energy Expenditure in a Diverse Cohort", J Pers Med 7(2):3.**
+  - URL: https://pubmed.ncbi.nlm.nih.gov/28538708/
+  - Content (abstract): seven wrist devices on 60 volunteers against telemetry and indirect calorimetry. Heart rate error was low (about 2–7%); no device estimated energy expenditure with under 20% error, median errors 27–93%. Errors were larger for men, higher BMI, darker skin and walking.
+  - Reliability: peer reviewed, but lab-based, small, and the devices are from 2016–17.
+  - Take-away: calories burned from a wearable are an estimate with large error, so the eaten-vs-burned card shows a range and names over-estimated burn as a likely cause of a gap.
+- **Hall K.D. (2008), "What is the required energy deficit per unit weight loss?", Int J Obes 32:573–576.**
+  - URLs: https://pubmed.ncbi.nlm.nih.gov/17848938/ and https://pmc.ncbi.nlm.nih.gov/articles/PMC2376744
+  - Content (abstract and PMC snippet): the 3,500 kcal per pound (about 7,700 kcal/kg) rule fits people with more than about 30 kg of body fat, but overestimates the deficit per kg for leaner people.
+  - Follow-up: Hall K.D. & Chow C.C. (2013), commentary in Int J Obes, https://www.nature.com/articles/ijo2013112.pdf: the rule's main flaw is that it ignores dynamic changes in energy expenditure over time (search summary).
+  - Reliability: peer reviewed (NIH researcher).
+  - Take-away: 7,700 kcal/kg is used only as a rough conversion with a wide range, never as a precise number.
+- **Sleep duration and next-day HRV, wearable datasets (vendor analyses).**
+  - URLs:
+    - https://www.tryterra.co/research/think-a-good-hrv-score-follows-a-good-night-sleep-think-again
+    - https://www.athletedata.health/blog/short-sleep-morning-heart-rate
+  - Content (search summaries, unverified): in about 90,000 nights, sleep duration explained under 1% of next-day HRV variation, with significant within-person links in only about 15% of people, in both directions. An athlete dataset (110,174 nights, 533 athletes) reported morning resting HR about 1.4 bpm higher and HRV about 3.5 ms lower after people's shortest nights.
+  - Reliability: company blogs, not peer reviewed.
+  - Take-away: the sleep card compares within the person, needs a 2-SE difference before calling it clear, and says "no clear difference" is common.
+- **Peer-reviewed within-person study: JMIR Cardio 2021, 5(2):e28731**, interns monitored with a wearable and app.
+  - URL: https://cardio.jmir.org/2021/2/e28731
+  - Content (search summary): over 2,379 person-days, more total sleep the previous night buffered the effect of evening mental exhaustion on resting HRV.
+  - Take-away: supports looking at sleep and next-morning HRV within the same person; not used for any number.

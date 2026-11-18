@@ -24,6 +24,10 @@ A meal photo is estimated **on the phone** by a model stored in the app's privat
 in the app's cache only; photos you pick or share are read once and not copied into the database. Photos are never
 uploaded.
 
+## Home-screen widget
+If you place the widget, today's calories, protein, steps and one coach tip are visible on your home screen (and to
+anyone who can see it). It reads the same local database and sends nothing anywhere. Remove the widget to hide it.
+
 ## Backups, export and deletion
 - Android cloud backup is **disabled** for this app (`allowBackup="false"`), so its data isn't copied to Google Drive.
 - Settings → *Export all data* writes a zip of CSV files (food, weight, daily, sleep, workouts) to a place you choose.

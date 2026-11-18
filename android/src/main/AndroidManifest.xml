@@ -69,6 +69,18 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <!-- Home-screen widget: today's calories, protein, steps and the coach's top tip, from the local database. -->
+        <receiver
+            android:name=".widget.TodayWidget"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_today_info" />
+        </receiver>
+
         <!-- Same screen for Android 14+. -->
         <activity-alias
             android:name="ViewPermissionUsageActivity"

@@ -18,8 +18,9 @@ class AppContainer(context: Context) {
     val db = AppDatabase.create(context)
     val settings = SettingsStore(context)
     val health = HealthConnectManager(context)
-    val food = FoodRepository(db, health, settings)
-    val sync = SyncController(health, HealthSync(health, db), settings)
+    private val refreshWidget: () -> Unit = { dev.healthapp.widget.TodayWidget.refresh(context.applicationContext) }
+    val food = FoodRepository(db, health, settings, refreshWidget)
+    val sync = SyncController(health, HealthSync(health, db), settings, refreshWidget)
     val calories = dev.healthapp.ml.CalorieEstimator(context)
 }
 
@@ -36,6 +37,7 @@ class SyncController(
     private val health: HealthConnectManager,
     private val healthSync: HealthSync,
     private val settings: SettingsStore,
+    private val onSynced: () -> Unit = {},
 ) {
     private val _status = MutableStateFlow(HealthStatus())
     val status: StateFlow<HealthStatus> = _status.asStateFlow()
@@ -73,6 +75,7 @@ class SyncController(
         try {
             val result = healthSync.sync(days)
             settings.setLastSync(now, result.message)
+            onSynced()
         } catch (e: Exception) {
             Log.w("HealthSync", "sync failed", e)
             settings.setLastSync(last, "Sync failed: ${e.message ?: e.javaClass.simpleName}")
@@ -87,6 +90,7 @@ class FoodRepository(
     private val db: AppDatabase,
     private val health: HealthConnectManager,
     private val settings: SettingsStore,
+    private val onChanged: () -> Unit = {},
 ) {
     private suspend fun shouldShare(): Boolean = settings.current().shareFoodToHealthConnect &&
         runCatching { health.shareFoodPermission in health.grantedPermissions() }.getOrDefault(false)
@@ -98,6 +102,7 @@ class FoodRepository(
                 .onSuccess { hcId -> if (hcId != null) db.food().update(entry.copy(id = id, hcRecordId = hcId)) }
                 .onFailure { Log.w("FoodRepository", "share to Health Connect failed", it) }
         }
+        onChanged()
         return id
     }
 
@@ -108,10 +113,12 @@ class FoodRepository(
             runCatching { health.writeFood(entry) }.getOrNull()?.let { updated = updated.copy(hcRecordId = it) }
         }
         db.food().update(updated)
+        onChanged()
     }
 
     suspend fun delete(entry: FoodEntry) {
         db.food().delete(entry)
         entry.hcRecordId?.let { runCatching { health.deleteFood(it) } }
+        onChanged()
     }
 }
