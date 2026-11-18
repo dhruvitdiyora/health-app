@@ -1,6 +1,6 @@
 # Health App: Plan (v2, Android-first)
 
-Status (2026-11-17): **Phases 1 and 2 are built** as a native Android app in [android/](android/) and run on the user's Pixel 9 (Android 17) against their real Health Connect data. Phase 3 became the separate app [Strapless](https://github.com/dhruvitdiyora/strapless) (v0 shipped). Phase 4 (Activities) was built on 2026-11-18 and awaits a phone check; Phase 5 (Insights, coach, widget) was built the same day and also awaits a phone check. On 2026-10-22 the user asked for "something good for android" and approved building overnight.
+Status (2026-11-17): **Phases 1 and 2 are built** as a native Android app in [android/](android/) and run on the user's Pixel 9 (Android 17) against their real Health Connect data. Phase 3 became the separate app [Strapless](https://github.com/dhruvitdiyora/strapless) (v0 shipped). Phase 4 (Activities) was built on 2026-11-18 and was checked on the phone; Phase 5 (Insights, coach, widget) was built the same day and was also checked on the phone. On 2026-10-22 the user asked for "something good for android" and approved building overnight.
 
 ## Goal
 One personal, local-first health app that combines:
@@ -94,8 +94,8 @@ One personal, local-first health app that combines:
   - The user's answers: they wear a **Fitbit Air** (no WHOOP) and want one app across many devices; name "Strapless"; **self-contained first**, so it reads Health Connect and writes nothing back; public repo, AGPL-3.0.
   - v0: reads heart rate, resting HR, HRV, sleep and steps from Health Connect and computes recovery, strain and sleep scores on the phone, with a Today screen, a 14-day trend and Settings. Verified on the phone against an independent recalculation.
   - Next steps (Bluetooth heart-rate straps, Gadgetbridge import, a WHOOP driver, optional write-back) live in Strapless's own `docs/roadmap.md`.
-- **Phase 4: Activities (built 2026-11-18; awaiting a phone check).** Custom activity builder (types, goals, streaks) fed by Health Connect exercise sessions. Built as an Activities tab: workouts grouped into categories, the same workout from two apps merged (overlap ≥ 50% of the shorter one, keep the longest), weekly goals in sessions or minutes with streaks. Database v2 with a migration. See [docs/architecture.md](docs/architecture.md) "Activities".
-- **Phase 5: Insights + optional AI coach (built 2026-11-18; awaiting a phone check).** Eaten vs. burned calibration, sleep vs. recovery. Also a home-screen widget. Built as an Insights tab with a rule-based, on-device coach (no LLM, no network), a maintenance-calorie range from logs vs the scale, a sleep vs next-morning resting HR/HRV comparison, and a RemoteViews widget. See [docs/insights.md](docs/insights.md).
+- **Phase 4: Activities (built 2026-11-18; checked on the phone 2026-11-18).** Custom activity builder (types, goals, streaks) fed by Health Connect exercise sessions. Built as an Activities tab: workouts grouped into categories, the same workout from two apps merged (overlap ≥ 50% of the shorter one, keep the longest), weekly goals in sessions or minutes with streaks. Database v2 with a migration. See [docs/architecture.md](docs/architecture.md) "Activities".
+- **Phase 5: Insights + optional AI coach (built 2026-11-18; checked on the phone 2026-11-18).** Eaten vs. burned calibration, sleep vs. recovery. Also a home-screen widget. Built as an Insights tab with a rule-based, on-device coach (no LLM, no network), a maintenance-calorie range from logs vs the scale, a sleep vs next-morning resting HR/HRV comparison, and a RemoteViews widget. See [docs/insights.md](docs/insights.md).
 
 ## Approved 2026-11-17: finish the remaining phases (overnight run)
 The user approved finishing the remaining phases one at a time, starting 2026-11-18 03:00 local time, testing on
@@ -105,7 +105,7 @@ phone, migrations for schema changes). Order:
    Fitbit/Strava double-count question (Risk above) by de-duplicating overlapping sessions.
 2. **Phase 5: Insights**: eaten vs. burned calibration (using `trackedBurn()`), sleep vs. next-day resting HR/HRV,
    and a home-screen widget. The "AI coach" is **rule-based and on-device**; no LLM or network.
-3. **Phase 2 later items** (*correction factor built 2026-11-18, awaiting a phone check; the smaller model was not tried because it needs the model downloaded again*): a personal correction factor learned from the user's edits; try a smaller model (mixed
+3. **Phase 2 later items** (*correction factor built 2026-11-18, checked on the phone 2026-11-18; the smaller model was not tried because it needs the model downloaded again*): a personal correction factor learned from the user's edits; try a smaller model (mixed
    fp16) and keep it only if the benchmark holds. An in-app model *download* is **not** built, because the app has no
    network access.
 
